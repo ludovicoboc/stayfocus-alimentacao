@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Upload, FileText, Zap, AlertCircle } from "lucide-react"
-import { useConcursos } from "@/hooks/use-concursos"
+import { useConcursos } from "@/hooks/concursos"
 import { useSimulados } from "@/hooks/use-simulados"
 
 export function SimuladoLoader() {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-provider";
-import { useConcursos } from "@/hooks/use-concursos";
+import { useConcursos } from "@/hooks/concursos";
 import { ConcursoForm } from "@/components/concurso-form";
 import { ImportarConcursoJson } from "@/components/importar-concurso-json";
 import { ConcursoCard } from "@/components/concurso-card";

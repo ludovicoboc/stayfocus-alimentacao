@@ -1,0 +1,187 @@
+{
+  "modulo": "app/alimentacao",
+  "data_auditoria": "2024-12-19",
+  
+  "hooks": {
+    "identificados": [
+      {
+        "nome": "useReceitas",
+        "arquivo": "hooks/use-receitas.ts",
+        "responsabilidades": ["gerenciar receitas", "gerenciar lista de compras", "operações CRUD receitas", "operações CRUD lista compras", "validação de dados"],
+        "estados_gerenciados": ["receitas", "listaCompras", "loading"],
+        "operacoes_crud": ["loadReceitas", "adicionarReceita", "atualizarReceita", "excluirReceita", "toggleFavorita", "loadListaCompras", "adicionarItemListaCompras", "toggleItemComprado", "limparListaCompras", "gerarListaComprasDeReceitas"],
+        "dependencias": ["useAuth", "createClient", "validações do utils/validations.ts"],
+        "problemas_identificados": ["responsabilidade única violada", "gerencia dois domínios diferentes", "falta de separação entre receitas e lista de compras", "estados de loading não granulares"]
+      }
+    ],
+    "problemas_gerais": ["falta de hooks para meal_plans, meal_records e hydration_records", "lógica de banco de dados implementada diretamente nos componentes", "inconsistência no tratamento de erros", "falta de padronização nos estados de loading"],
+    "padroes_inconsistentes": ["alguns componentes usam hooks centralizados, outros fazem chamadas diretas ao Supabase", "nomenclatura mista português/inglês", "estruturas de retorno diferentes entre hooks"]
+  },
+  
+  "types": {
+    "identificados": [
+      {
+        "nome": "Receita",
+        "arquivo": "hooks/use-receitas.ts",
+        "tipo": "interface",
+        "finalidade": "definir estrutura de receitas",
+        "campos": ["id", "user_id", "nome", "categoria", "ingredientes", "modo_preparo", "tempo_preparo", "porcoes", "dificuldade", "favorita", "created_at", "updated_at"],
+        "relacionamentos": ["usado no useReceitas", "validado por validateReceita"],
+        "problemas_identificados": ["definido inline no hook em vez de arquivo centralizado", "duplicação com tipo do banco de dados"]
+      },
+      {
+        "nome": "ItemListaCompras",
+        "arquivo": "hooks/use-receitas.ts",
+        "tipo": "interface",
+        "finalidade": "definir estrutura de itens da lista de compras",
+        "campos": ["id", "user_id", "nome", "categoria", "quantidade", "comprado", "receita_id", "created_at"],
+        "relacionamentos": ["usado no useReceitas", "validado por validateItemListaCompras"],
+        "problemas_identificados": ["definido inline no hook", "duplicação com tipo do banco"]
+      },
+      {
+        "nome": "MealPlan",
+        "arquivo": "components/planejador-refeicoes.tsx",
+        "tipo": "interface",
+        "finalidade": "definir estrutura de planejamento de refeições",
+        "campos": ["id", "time", "description"],
+        "relacionamentos": ["usado apenas no componente PlanejadorRefeicoes"],
+        "problemas_identificados": ["definido inline no componente", "nomenclatura em inglês inconsistente", "campos limitados comparado ao tipo do banco"]
+      },
+      {
+        "nome": "MealRecord",
+        "arquivo": "components/registro-refeicoes.tsx",
+        "tipo": "interface",
+        "finalidade": "definir estrutura de registros de refeições",
+        "campos": ["id", "time", "description", "created_at"],
+        "relacionamentos": ["usado apenas no componente RegistroRefeicoes"],
+        "problemas_identificados": ["definido inline no componente", "nomenclatura em inglês", "falta de campos do tipo do banco"]
+      },
+      {
+        "nome": "Database.receitas",
+        "arquivo": "lib/supabase.ts",
+        "tipo": "type",
+        "finalidade": "tipagem do banco de dados para receitas",
+        "campos": ["Row", "Insert", "Update com todos os campos da tabela"],
+        "relacionamentos": ["deveria ser usado pelos hooks mas não é"],
+        "problemas_identificados": ["não é reutilizado nos hooks e componentes", "duplicação de definições"]
+      },
+      {
+        "nome": "Database.meal_plans",
+        "arquivo": "lib/supabase.ts",
+        "tipo": "type",
+        "finalidade": "tipagem do banco para planejamento de refeições",
+        "campos": ["Row", "Insert", "Update"],
+        "relacionamentos": ["não é usado no componente PlanejadorRefeicoes"],
+        "problemas_identificados": ["tipo existe mas não é utilizado", "componente define seu próprio tipo"]
+      }
+    ],
+    "problemas_gerais": ["tipos duplicados entre hooks, componentes e banco", "falta de arquivo centralizado types/alimentacao.ts", "inconsistência na nomenclatura português/inglês", "tipos do banco não são reutilizados"],
+    "tipos_duplicados": ["Receita vs Database.receitas", "MealPlan vs Database.meal_plans", "MealRecord vs Database.meal_records"]
+  },
+  
+  "utils": {
+    "identificados": [
+      {
+        "nome": "validateReceita",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "validar dados de receitas antes de inserir no banco",
+        "parametros": ["receita: any"],
+        "retorno": "ValidationResult",
+        "eh_pura": true,
+        "usado_em": ["useReceitas.adicionarReceita", "useReceitas.atualizarReceita"],
+        "problemas_identificados": ["usa tipo any em vez de interface tipada", "não é usado consistentemente em todas as operações"]
+      },
+      {
+        "nome": "validateItemListaCompras",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "validar itens da lista de compras",
+        "parametros": ["item: any"],
+        "retorno": "ValidationResult",
+        "eh_pura": true,
+        "usado_em": ["useReceitas.adicionarItemListaCompras"],
+        "problemas_identificados": ["usa tipo any", "validação limitada"]
+      }
+    ],
+    "problemas_gerais": ["falta de utils para formatação de dados alimentares", "ausência de funções para cálculos nutricionais", "falta de utils para conversão de unidades", "não há formatters específicos para o módulo"],
+    "funcoes_duplicadas": ["não identificadas duplicações diretas"]
+  },
+  
+  "relacionamentos": {
+    "hooks_types": {
+      "como_se_relacionam": "useReceitas define seus próprios tipos inline em vez de importar tipos centralizados, componentes também definem tipos próprios",
+      "problemas": ["falta de centralização de tipos", "duplicação de definições", "inconsistência entre tipos de hooks e componentes"]
+    },
+    "hooks_utils": {
+      "como_se_relacionam": "useReceitas usa algumas validações do utils/validations.ts mas não de forma consistente",
+      "problemas": ["validações não são aplicadas em todas as operações", "falta de utils específicos para o módulo", "dependência parcial das validações"]
+    },
+    "utils_types": {
+      "como_se_relacionam": "funções de validação usam tipo any em vez de interfaces tipadas específicas",
+      "problemas": ["perda de type safety", "validações genéricas demais", "falta de integração com tipos específicos do módulo"]
+    },
+    "dependencias_circulares": [],
+    "acoplamento_excessivo": ["useReceitas gerencia múltiplos domínios", "componentes fazem chamadas diretas ao Supabase", "falta de separação entre lógica de receitas e lista de compras"]
+  },
+  
+  "fluxo_dados": {
+    "entrada": "Componentes recebem dados do usuário e passam para hooks ou fazem chamadas diretas ao Supabase",
+    "transformacoes": ["validação opcional via utils/validations.ts", "sanitização de dados", "formatação para inserção no banco"],
+    "saida": "Dados retornados do Supabase são consumidos diretamente pelos componentes via hooks ou estados locais",
+    "pontos_falha": ["validações não são obrigatórias", "tratamento de erro inconsistente", "falta de retry logic", "estados de loading não granulares", "ausência de cache local"]
+  },
+  
+  "recomendacoes_prioritarias": [
+    {
+      "categoria": "hooks",
+      "prioridade": "alta",
+      "problema": "useReceitas viola princípio da responsabilidade única gerenciando receitas e lista de compras",
+      "solucao_sugerida": "Separar em useReceitas e useListaCompras, criar useRefeicoes para meal_plans/records, useHidratacao para hydration_records",
+      "impacto": "Melhora manutenibilidade, testabilidade e reutilização. Reduz complexidade e facilita debugging"
+    },
+    {
+      "categoria": "types",
+      "prioridade": "alta",
+      "problema": "Tipos duplicados e definidos inline em múltiplos arquivos",
+      "solucao_sugerida": "Criar types/alimentacao.ts centralizando todos os tipos do módulo, reutilizar tipos do Database",
+      "impacto": "Elimina duplicação, melhora consistência e facilita manutenção de tipos"
+    },
+    {
+      "categoria": "hooks",
+      "prioridade": "alta",
+      "problema": "Componentes fazem chamadas diretas ao Supabase em vez de usar hooks centralizados",
+      "solucao_sugerida": "Criar hooks para PlanejadorRefeicoes, RegistroRefeicoes e LembreteHidratacao",
+      "impacto": "Centraliza lógica de dados, melhora reutilização e facilita testes"
+    },
+    {
+      "categoria": "types",
+      "prioridade": "media",
+      "problema": "Inconsistência na nomenclatura entre português e inglês",
+      "solucao_sugerida": "Padronizar nomenclatura para português seguindo padrão do projeto",
+      "impacto": "Melhora consistência e legibilidade do código"
+    },
+    {
+      "categoria": "utils",
+      "prioridade": "media",
+      "problema": "Validações usam tipo any e não são aplicadas consistentemente",
+      "solucao_sugerida": "Tipar validações adequadamente e tornar uso obrigatório em todas as operações CRUD",
+      "impacto": "Melhora type safety e confiabilidade dos dados"
+    },
+    {
+      "categoria": "utils",
+      "prioridade": "baixa",
+      "problema": "Falta de utils específicos para formatação e cálculos nutricionais",
+      "solucao_sugerida": "Criar utils para formatação de tempo de preparo, conversão de unidades, cálculos nutricionais",
+      "impacto": "Melhora experiência do usuário e funcionalidades do módulo"
+    }
+  ],
+  
+  "metricas": {
+    "total_hooks": 1,
+    "total_types": 6,
+    "total_utils": 2,
+    "nivel_complexidade": "alto",
+    "nivel_padronizacao": "baixo",
+    "problemas_criticos": 8,
+    "score_qualidade": 35
+  }
+}

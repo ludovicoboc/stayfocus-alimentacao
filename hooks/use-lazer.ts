@@ -3,14 +3,32 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import { useAuth } from "./use-auth"
+import { useAsyncState } from "@/hooks/shared/use-async-state"
 import type { AtividadeLazer, SugestaoDescanso, SugestaoFavorita, SessaoLazer, EstatisticasLazer } from "@/types/lazer"
-import { validateAtividadeLazer, validateData, sanitizeString, sanitizeNumber, sanitizeDate } from "@/utils/validations"
+import { validateAtividadeLazer, validateData, sanitizeString, sanitizeNumber, sanitizeDate } from "@/utils/validations-migration"
 
 export function useLazer() {
   const { user } = useAuth()
   const supabase = createClient()
-  const [atividades, setAtividades] = useState<AtividadeLazer[]>([])
-  const [sugestoes, setSugestoes] = useState<SugestaoDescanso[]>([])
+  
+  // SUP-5: Estados async padronizados
+  const atividadesState = useAsyncState<AtividadeLazer[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em atividades:", error)
+  })
+  
+  const sugestoesState = useAsyncState<SugestaoDescanso[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em sugestões:", error)
+  })
+  
+  // Compatibilidade com API existente
+  const atividades = atividadesState.data || []
+  const sugestoes = sugestoesState.data || []
+  const loading = atividadesState.loading || sugestoesState.loading
+  const error = atividadesState.error || sugestoesState.error
+  
+  // Estados não migrados ainda (mantidos para compatibilidade)
   const [favoritas, setFavoritas] = useState<SugestaoFavorita[]>([])
   const [sessaoAtual, setSessaoAtual] = useState<SessaoLazer | null>(null)
   const [estatisticas, setEstatisticas] = useState<EstatisticasLazer>({
@@ -18,8 +36,6 @@ export function useLazer() {
     tempoTotalMinutos: 0,
     categoriaFavorita: null,
   })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [operationLoading, setOperationLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 

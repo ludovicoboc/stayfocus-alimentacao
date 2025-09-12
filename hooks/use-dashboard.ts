@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-provider"
+import { useAsyncState } from "@/hooks/shared/use-async-state"
 import type { AtividadePainelDia, Prioridade, Medicamento, SessaoFocoDashboard } from "@/types/dashboard"
-import { sanitizeString } from "@/utils/validations"
+import { sanitizeString } from "@/utils/validations-migration"
 import { getCurrentDateString } from "@/lib/utils"
 
 interface DashboardData {
@@ -38,15 +39,31 @@ interface DashboardError {
 
 export function useDashboard(date?: string) {
   const { user } = useAuth()
-  const [dashboardData, setDashboardData] = useState<DashboardData>({
+  
+  // SUP-5: Estados async padronizados
+  const dashboardState = useAsyncState<DashboardData>({
+    initialData: {
+      painelDia: [],
+      prioridades: [],
+      medicamentos: [],
+      sessaoFoco: null,
+      summary: undefined,
+    },
+    onError: (error) => {
+      console.error("Erro no dashboard:", error);
+    }
+  })
+  
+  // Compatibilidade com API existente
+  const dashboardData = dashboardState.data || {
     painelDia: [],
     prioridades: [],
     medicamentos: [],
     sessaoFoco: null,
     summary: undefined,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<DashboardError | null>(null)
+  }
+  const loading = dashboardState.loading
+  const error = dashboardState.error ? { message: dashboardState.error, type: 'loading' as const } : null
   const supabase = useMemo(() => createClient(), [])
   const resolvedDate = useMemo(() => date || getCurrentDateString(), [date])
 

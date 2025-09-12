@@ -1,0 +1,248 @@
+{
+  "modulo": "autoconhecimento",
+  "data_auditoria": "2024-12-19",
+  
+  "hooks": {
+    "identificados": [
+      {
+        "nome": "useSelfKnowledge",
+        "arquivo": "hooks/use-self-knowledge.ts",
+        "responsabilidades": [
+          "Gerenciamento de notas de autoconhecimento",
+          "Operações CRUD na tabela self_knowledge_notes",
+          "Filtragem e busca de notas por categoria",
+          "Controle de estado de carregamento"
+        ],
+        "estados_gerenciados": [
+          "notes: SelfKnowledgeNote[]",
+          "loading: boolean",
+          "searchTerm: string"
+        ],
+        "operacoes_crud": [
+          "fetchNotes - SELECT com filtro por user_id",
+          "createNote - INSERT nova nota",
+          "updateNote - UPDATE nota existente",
+          "deleteNote - DELETE nota por id"
+        ],
+        "dependencias": [
+          "useAuth (para obter user)",
+          "createClient (Supabase)",
+          "useState, useEffect (React)"
+        ],
+        "problemas_identificados": [
+          "Falta de tratamento de erro estruturado (apenas console.error)",
+          "Não há estado de erro exposto para componentes",
+          "useEffect sem array de dependências adequado",
+          "Falta de cleanup em operações assíncronas",
+          "Não há debounce na busca (searchTerm)",
+          "Estado de loading não é granular (não diferencia operações)",
+          "Falta de validação de entrada nos métodos CRUD",
+          "Não há cache ou otimização de re-renders"
+        ]
+      }
+    ],
+    "problemas_gerais": [
+      "Apenas um hook principal para todo o módulo",
+      "Falta de hooks especializados para diferentes aspectos",
+      "Não há integração com sistema de histórico unificado",
+      "Ausência de hooks para analytics/estatísticas específicas",
+      "Não há hook para sincronização offline"
+    ],
+    "padroes_inconsistentes": [
+      "Uso de console.error ao invés de sistema de erro padronizado",
+      "Retorno de null em operações vs boolean em outras",
+      "Falta de padrão para loading states granulares",
+      "Inconsistência na nomenclatura de métodos (fetchNotes vs refetch)"
+    ]
+  },
+  
+  "types": {
+    "identificados": [
+      {
+        "nome": "SelfKnowledgeCategory",
+        "arquivo": "hooks/use-self-knowledge.ts",
+        "tipo": "type",
+        "finalidade": "Definir categorias válidas para notas de autoconhecimento",
+        "campos": ["quem_sou", "meus_porques", "meus_padroes"],
+        "relacionamentos": ["Usado em SelfKnowledgeNote", "Usado em componentes"],
+        "problemas_identificados": [
+          "Definido dentro do hook ao invés de arquivo de types dedicado",
+          "Valores hardcoded sem constantes centralizadas"
+        ]
+      },
+      {
+        "nome": "SelfKnowledgeNote",
+        "arquivo": "hooks/use-self-knowledge.ts",
+        "tipo": "interface",
+        "finalidade": "Estrutura de dados para notas de autoconhecimento",
+        "campos": [
+          "id: string",
+          "user_id: string", 
+          "category: SelfKnowledgeCategory",
+          "title: string",
+          "content: string",
+          "created_at: string",
+          "updated_at: string"
+        ],
+        "relacionamentos": [
+          "Relaciona com Database.self_knowledge_notes",
+          "Usado em componentes EditorNotas e ListaNotas"
+        ],
+        "problemas_identificados": [
+          "Definido dentro do hook ao invés de arquivo de types dedicado",
+          "Falta de validação de tipos para campos obrigatórios",
+          "Não há tipos para DTOs (create/update inputs)",
+          "Campos de data como string sem tipagem específica"
+        ]
+      },
+      {
+        "nome": "ModuleType",
+        "arquivo": "types/history.ts",
+        "tipo": "type",
+        "finalidade": "Enum de módulos do sistema incluindo autoconhecimento",
+        "campos": ["autoconhecimento entre outros módulos"],
+        "relacionamentos": ["Usado em sistema de histórico", "Usado em cross-module statistics"],
+        "problemas_identificados": [
+          "Definição correta e bem integrada"
+        ]
+      },
+      {
+        "nome": "ACTIVITY_TYPES.autoconhecimento",
+        "arquivo": "types/history.ts", 
+        "tipo": "const",
+        "finalidade": "Tipos de atividades predefinidas para autoconhecimento",
+        "campos": [
+          "reflection_completed",
+          "journal_entry", 
+          "personality_assessment",
+          "goal_set",
+          "insight_gained"
+        ],
+        "relacionamentos": ["Usado em sistema de histórico"],
+        "problemas_identificados": [
+          "Não há integração real com o módulo atual",
+          "Tipos não são utilizados no hook principal"
+        ]
+      }
+    ],
+    "problemas_gerais": [
+      "Tipos principais definidos dentro do hook ao invés de arquivo dedicado",
+      "Falta de tipos para DTOs e validação",
+      "Ausência de tipos para estados de erro",
+      "Não há tipos para configurações do módulo",
+      "Falta de integração entre tipos do histórico e tipos do módulo"
+    ],
+    "tipos_duplicados": [
+      "Potencial duplicação entre SelfKnowledgeNote e Database.self_knowledge_notes"
+    ]
+  },
+  
+  "utils": {
+    "identificados": [],
+    "problemas_gerais": [
+      "Ausência completa de funções utilitárias específicas",
+      "Lógica de formatação hardcoded nos componentes",
+      "Não há validadores para dados de entrada",
+      "Falta de helpers para manipulação de categorias",
+      "Ausência de formatadores de data/texto",
+      "Não há utils para exportação/importação de dados"
+    ],
+    "funcoes_duplicadas": []
+  },
+  
+  "relacionamentos": {
+    "hooks_types": {
+      "como_se_relacionam": "Hook useSelfKnowledge define e exporta seus próprios tipos (SelfKnowledgeCategory, SelfKnowledgeNote) ao invés de importá-los de arquivo dedicado",
+      "problemas": [
+        "Acoplamento forte entre hook e definições de tipos",
+        "Dificuldade para reutilização de tipos em outros módulos",
+        "Violação do princípio de responsabilidade única"
+      ]
+    },
+    "hooks_utils": {
+      "como_se_relacionam": "Hook não utiliza nenhuma função utilitária, implementa toda lógica internamente",
+      "problemas": [
+        "Lógica de formatação e validação misturada com lógica de estado",
+        "Código duplicado potencial com outros módulos",
+        "Dificuldade para testes unitários de funções específicas"
+      ]
+    },
+    "utils_types": {
+      "como_se_relacionam": "Não há relacionamento pois não existem utils específicos",
+      "problemas": [
+        "Ausência de validadores tipados",
+        "Falta de transformadores de dados tipados"
+      ]
+    },
+    "dependencias_circulares": [],
+    "acoplamento_excessivo": [
+      "Hook define seus próprios tipos criando acoplamento desnecessário",
+      "Componentes dependem diretamente do hook para tipos"
+    ]
+  },
+  
+  "fluxo_dados": {
+    "entrada": "Dados entram via interação do usuário nos componentes (EditorNotas, ListaNotas) que chamam métodos do hook useSelfKnowledge",
+    "transformacoes": [
+      "Componente → Hook → Supabase (operações CRUD)",
+      "Supabase → Hook → Estado local → Componente (renderização)",
+      "Busca: searchTerm → getFilteredNotes → notas filtradas"
+    ],
+    "saida": "Dados saem via renderização nos componentes e potencialmente via sistema de histórico (não implementado)",
+    "pontos_falha": [
+      "Falha de autenticação não tratada adequadamente",
+      "Erros de rede apenas logados, não expostos para UI",
+      "Falta de fallback para dados offline",
+      "Ausência de validação antes de envio para Supabase",
+      "Não há retry logic para operações falhadas"
+    ]
+  },
+  
+  "recomendacoes_prioritarias": [
+    {
+      "categoria": "types",
+      "prioridade": "alta",
+      "problema": "Tipos definidos dentro do hook ao invés de arquivo dedicado",
+      "solucao_sugerida": "Criar arquivo types/autoconhecimento.ts e mover todas as definições de tipos para lá",
+      "impacto": "Melhora reutilização, reduz acoplamento e facilita manutenção"
+    },
+    {
+      "categoria": "hooks", 
+      "prioridade": "alta",
+      "problema": "Tratamento de erro inadequado e falta de estado de erro",
+      "solucao_sugerida": "Implementar sistema de erro estruturado com estado error exposto e tratamento adequado",
+      "impacto": "Melhora experiência do usuário e facilita debugging"
+    },
+    {
+      "categoria": "utils",
+      "prioridade": "media",
+      "problema": "Ausência completa de funções utilitárias",
+      "solucao_sugerida": "Criar utils/autoconhecimento.ts com validadores, formatadores e helpers",
+      "impacto": "Reduz duplicação de código e melhora testabilidade"
+    },
+    {
+      "categoria": "hooks",
+      "prioridade": "media", 
+      "problema": "Falta de integração com sistema de histórico",
+      "solucao_sugerida": "Integrar operações do módulo com sistema de activity_history",
+      "impacto": "Permite analytics e tracking consistente com outros módulos"
+    },
+    {
+      "categoria": "hooks",
+      "prioridade": "baixa",
+      "problema": "Ausência de otimizações de performance",
+      "solucao_sugerida": "Implementar debounce para busca, memoização e cache local",
+      "impacto": "Melhora performance e experiência do usuário"
+    }
+  ],
+  
+  "metricas": {
+    "total_hooks": 1,
+    "total_types": 4,
+    "total_utils": 0,
+    "nivel_complexidade": "baixo",
+    "nivel_padronizacao": "baixo", 
+    "problemas_criticos": 2,
+    "score_qualidade": 45
+  }
+}

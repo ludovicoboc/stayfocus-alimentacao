@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-provider"
-import { sanitizeString, sanitizeDate } from "@/utils/validations"
+import { sanitizeString, sanitizeDate } from "@/utils/validations-migration"
 import { getCurrentDateString } from "@/lib/utils"
 
 export interface Compromisso {

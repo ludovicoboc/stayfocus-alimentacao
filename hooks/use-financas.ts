@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-provider";
+import { useAsyncState } from "@/hooks/shared/use-async-state";
 import type {
   CategoriaGasto,
   Despesa,
@@ -16,17 +17,37 @@ import {
   sanitizeString,
   sanitizeNumber,
   sanitizeDate,
-} from "@/utils/validations";
+} from "@/utils/validations-migration";
 import { criarCategoriasDefault } from "@/utils/default-categories";
 
 export function useFinancas() {
   const { user } = useAuth();
   const supabase = createClient();
-  const [categorias, setCategorias] = useState<CategoriaGasto[]>([]);
-  const [despesas, setDespesas] = useState<Despesa[]>([]);
-  const [envelopes, setEnvelopes] = useState<EnvelopeVirtual[]>([]);
+  
+  // SUP-5: Estados async padronizados
+  const categoriasState = useAsyncState<CategoriaGasto[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em categorias:", error)
+  });
+  
+  const despesasState = useAsyncState<Despesa[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em despesas:", error)
+  });
+  
+  const envelopesState = useAsyncState<EnvelopeVirtual[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em envelopes:", error)
+  });
+  
+  // Compatibilidade com API existente
+  const categorias = categoriasState.data || [];
+  const despesas = despesasState.data || [];
+  const envelopes = envelopesState.data || [];
+  const loading = categoriasState.loading || despesasState.loading || envelopesState.loading;
+  
+  // Estados não migrados ainda (mantidos para compatibilidade)
   const [pagamentos, setPagamentos] = useState<PagamentoAgendado[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
