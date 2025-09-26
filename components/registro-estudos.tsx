@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Badge } from "@/components/ui/badge"
 import { Plus, Clock, BookOpen, CheckCircle, Circle, Edit2, Trash2 } from "lucide-react"
 import { useEstudos } from "@/hooks/use-estudos"
-import { useConcursos } from "@/hooks/use-concursos"
+import { useConcursos } from "@/hooks/concursos"
 import { toast } from "sonner"
 
 interface SessaoEstudo {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-provider"
 import { createClient } from "@/lib/supabase"
+import { useAsyncState } from "@/hooks/shared/use-async-state"
 import { 
   RegistroSono, 
   ConfiguracaoLembretes, 
@@ -12,15 +13,30 @@ import {
   ConfiguracaoLembretesInsert,
   ConfiguracaoLembretesUpdate
 } from "@/types/sono"
-import { validateRegistroSono, validateData, sanitizeString, sanitizeDate, sanitizeNumber } from "@/utils/validations"
+import { validateRegistroSono, validateData, sanitizeString, sanitizeDate, sanitizeNumber } from "@/utils/validations-migration"
 
 export function useSono() {
   const { user } = useAuth()
   const supabase = createClient()
-  const [registrosSono, setRegistrosSono] = useState<RegistroSono[]>([])
-  const [configuracaoLembretes, setConfiguracaoLembretes] = useState<ConfiguracaoLembretes | null>(null)
+  
+  // SUP-5: Estados async padronizados
+  const registrosSonoState = useAsyncState<RegistroSono[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em registros sono:", error)
+  });
+  
+  const configuracaoState = useAsyncState<ConfiguracaoLembretes | null>({
+    initialData: null,
+    onError: (error) => console.error("Erro em configuração:", error)
+  });
+  
+  // Compatibilidade com API existente
+  const registrosSono = registrosSonoState.data || [];
+  const configuracaoLembretes = configuracaoState.data;
+  const loading = registrosSonoState.loading || configuracaoState.loading;
+  
+  // Estados não migrados ainda (mantidos para compatibilidade)
   const [estatisticas, setEstatisticas] = useState<EstatisticasSono | null>(null)
-  const [loading, setLoading] = useState(true)
 
   // Carregar registros de sono
   const fetchRegistrosSono = async (diasAtras: number = 30) => {

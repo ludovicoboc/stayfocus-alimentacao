@@ -70,4 +70,4 @@ export interface Simulado {
   updated_at?: string
 }
 
-export type SimuladoStatus = "idle" | "loading" | "reviewing" | "results"
+export type SimuladoStatus = "idle" | "loading" | "reviewing" | "results" | "em_andamento" | "finalizado"

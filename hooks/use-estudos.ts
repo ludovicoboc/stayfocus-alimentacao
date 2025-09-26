@@ -3,14 +3,25 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-provider"
+import { useAsyncState } from "@/hooks/shared/use-async-state"
 import type { SessaoEstudo } from "@/types/estudos"
-import { validateSessaoEstudo, validateData, sanitizeString, sanitizeNumber } from "@/utils/validations"
+import { validateSessaoEstudo, validateData, sanitizeString, sanitizeNumber } from "@/utils/validations-migration"
 
 export function useEstudos() {
   const { user } = useAuth()
   const supabase = createClient()
-  const [sessoes, setSessoes] = useState<SessaoEstudo[]>([])
-  const [loading, setLoading] = useState(true)
+  
+  // SUP-5: Estados async padronizados
+  const sessoesState = useAsyncState<SessaoEstudo[]>({
+    initialData: [],
+    onError: (error) => {
+      console.error("Erro em useEstudos:", error);
+    }
+  })
+  
+  // Compatibilidade com API existente
+  const sessoes = sessoesState.data || []
+  const loading = sessoesState.loading
 
   useEffect(() => {
     if (user) {

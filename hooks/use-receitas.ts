@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-provider";
 import { createClient } from "@/lib/supabase";
+import { useAsyncState } from "@/hooks/shared/use-async-state";
 import {
   validateReceita,
   validateItemListaCompras,
@@ -10,7 +11,7 @@ import {
   sanitizeString,
   sanitizeArray,
   sanitizeNumber,
-} from "@/utils/validations";
+} from "@/utils/validations-migration";
 
 export interface Receita {
   id: string;
@@ -41,9 +42,22 @@ export interface ItemListaCompras {
 export function useReceitas() {
   const { user } = useAuth();
   const supabase = createClient();
-  const [receitas, setReceitas] = useState<Receita[]>([]);
-  const [listaCompras, setListaCompras] = useState<ItemListaCompras[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  // SUP-5: Estados async padronizados
+  const receitasState = useAsyncState<Receita[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em receitas:", error)
+  });
+  
+  const listaComprasState = useAsyncState<ItemListaCompras[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em lista de compras:", error)
+  });
+  
+  // Compatibilidade com API existente
+  const receitas = receitasState.data || [];
+  const listaCompras = listaComprasState.data || [];
+  const loading = receitasState.loading || listaComprasState.loading;
 
   const loadReceitas = async () => {
     if (!user) {

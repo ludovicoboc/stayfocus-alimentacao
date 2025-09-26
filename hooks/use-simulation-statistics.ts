@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-provider"
-import type { SimuladoResultado } from "@/types/simulados"
+import type { SimuladoResultado } from "@/types"
 
 export interface PerformanceMetrics {
   total_attempts: number

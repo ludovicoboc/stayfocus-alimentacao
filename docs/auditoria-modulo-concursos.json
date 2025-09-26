@@ -1,0 +1,778 @@
+{
+  "modulo": "app/concursos",
+  "data_auditoria": "2024-12-19",
+  
+  "hooks": {
+    "identificados": [
+      {
+        "nome": "useConcursos",
+        "arquivo": "hooks/use-concursos.ts",
+        "responsabilidades": [
+          "Gerenciamento de estado de concursos",
+          "Operações CRUD de concursos",
+          "Cache otimizado de concursos",
+          "Debouncing de requisições",
+          "Validação de dados",
+          "Sanitização de inputs",
+          "Gerenciamento de disciplinas e tópicos",
+          "Criação de dados de teste",
+          "Enriquecimento com histórico"
+        ],
+        "estados_gerenciados": [
+          "concursos: Concurso[]",
+          "loading: boolean",
+          "error: string | null"
+        ],
+        "operacoes_crud": [
+          "fetchConcursos",
+          "createCompetition",
+          "updateCompetition",
+          "deleteCompetition",
+          "adicionarConcurso",
+          "atualizarConcurso",
+          "fetchConcursoCompleto"
+        ],
+        "dependencias": [
+          "useAuth",
+          "createClient (Supabase)",
+          "validateConcurso",
+          "validateQuestao",
+          "sanitizeString",
+          "sanitizeDate",
+          "createDebouncedFunction",
+          "optimizedAuthCache",
+          "handleSupabaseCompetitionError"
+        ],
+        "problemas_identificados": [
+          "Responsabilidades excessivas - hook faz muitas coisas diferentes",
+          "Funções duplicadas para CRUD (createCompetition vs adicionarConcurso)",
+          "Estados inconsistentes entre diferentes operações",
+          "Cache manual implementado quando poderia usar biblioteca",
+          "Mistura de lógica de apresentação com lógica de negócio",
+          "Funções muito grandes (fetchConcursoCompleto tem >100 linhas)",
+          "Tratamento de erro inconsistente",
+          "Falta de cleanup em useEffect"
+        ]
+      },
+      {
+        "nome": "useQuestions",
+        "arquivo": "hooks/use-questions.ts",
+        "responsabilidades": [
+          "Gerenciamento de questões por concurso",
+          "Operações CRUD de questões",
+          "Estatísticas de questões",
+          "Filtros e busca de questões"
+        ],
+        "estados_gerenciados": [
+          "questions: Question[]",
+          "loading: boolean",
+          "error: string | null"
+        ],
+        "operacoes_crud": [
+          "loadQuestions",
+          "createQuestion",
+          "updateQuestion",
+          "deleteQuestion"
+        ],
+        "dependencias": [
+          "useAuth",
+          "createClient (Supabase)",
+          "useToast",
+          "competitionId (parâmetro)"
+        ],
+        "problemas_identificados": [
+          "Dependência forte de competitionId como parâmetro",
+          "Falta de validação de dados",
+          "Estados de loading não sincronizados",
+          "Sem debouncing para operações frequentes"
+        ]
+      },
+      {
+        "nome": "useSimulados",
+        "arquivo": "hooks/use-simulados.ts",
+        "responsabilidades": [
+          "Gerenciamento de simulados",
+          "Execução de simulados",
+          "Histórico de simulados",
+          "Geração de simulados personalizados",
+          "Carregamento de arquivos"
+        ],
+        "estados_gerenciados": [
+          "simuladoAtual: Simulado | null",
+          "status: SimuladoStatus",
+          "historico: SimuladoResultado[]",
+          "loading: boolean",
+          "error: string | null"
+        ],
+        "operacoes_crud": [
+          "gerarSimulado",
+          "carregarSimulado",
+          "salvarResultado",
+          "fetchHistorico"
+        ],
+        "dependencias": [
+          "useAuth",
+          "useConcursos",
+          "createClient (Supabase)",
+          "createHistoryTracker"
+        ],
+        "problemas_identificados": [
+          "Dependência circular com useConcursos",
+          "Estados complexos sem reducer",
+          "Falta de validação de dados",
+          "Operações assíncronas sem proper error handling"
+        ]
+      },
+      {
+        "nome": "useSimulations",
+        "arquivo": "hooks/use-simulations.ts",
+        "responsabilidades": [
+          "Gerenciamento avançado de simulações",
+          "Importação de simulados",
+          "Configurações de simulação"
+        ],
+        "estados_gerenciados": [
+          "simulations: any[]",
+          "loading: boolean",
+          "error: string | null"
+        ],
+        "operacoes_crud": [
+          "importSimulations",
+          "createSimulation",
+          "updateSimulation"
+        ],
+        "dependencias": [
+          "useAuth",
+          "createClient (Supabase)"
+        ],
+        "problemas_identificados": [
+          "Funcionalidade sobreposta com useSimulados",
+          "Tipagem fraca (any[])",
+          "Sem integração clara com outros hooks"
+        ]
+      },
+      {
+        "nome": "useSimulationHistory",
+        "arquivo": "hooks/use-simulation-history.ts",
+        "responsabilidades": [
+          "Gerenciamento de histórico de simulações",
+          "Operações CRUD de histórico",
+          "Queries complexas de histórico"
+        ],
+        "estados_gerenciados": [
+          "history: SimuladoResultado[]",
+          "loading: boolean",
+          "error: string | null"
+        ],
+        "operacoes_crud": [
+          "createRecord",
+          "updateRecord",
+          "getRecord",
+          "getHistory",
+          "getHistoryBySimulation"
+        ],
+        "dependencias": [
+          "useAuth",
+          "createClient (Supabase)",
+          "SimuladoResultado type"
+        ],
+        "problemas_identificados": [
+          "Responsabilidade sobreposta com useSimulados",
+          "Operações muito granulares",
+          "Falta de cache"
+        ]
+      },
+      {
+        "nome": "useSimulationStatistics",
+        "arquivo": "hooks/use-simulation-statistics.ts",
+        "responsabilidades": [
+          "Cálculo de estatísticas de simulações",
+          "Análise de performance",
+          "Insights preditivos",
+          "Análise de tendências"
+        ],
+        "estados_gerenciados": [
+          "statistics: any",
+          "loading: boolean",
+          "error: string | null"
+        ],
+        "operacoes_crud": [
+          "calculatePerformanceMetrics",
+          "calculateTrends",
+          "calculateSubjectAnalysis",
+          "calculateTimeAnalysis"
+        ],
+        "dependencias": [
+          "SimuladoResultado type",
+          "useCallback"
+        ],
+        "problemas_identificados": [
+          "Lógica complexa que deveria estar em utils",
+          "Cálculos pesados no frontend",
+          "Falta de memoização adequada"
+        ]
+      }
+    ],
+    "problemas_gerais": [
+      "Múltiplos hooks com responsabilidades sobrepostas",
+      "Falta de padronização na nomenclatura (useConcursos vs useSimulations)",
+      "Estados duplicados entre hooks diferentes",
+      "Dependências circulares entre hooks",
+      "Falta de abstração para operações comuns do Supabase",
+      "Tratamento de erro inconsistente",
+      "Cache implementado manualmente em vez de usar bibliotecas",
+      "Falta de testes unitários"
+    ],
+    "padroes_inconsistentes": [
+      "Alguns hooks usam 'loading', outros usam estados específicos",
+      "Nomenclatura inconsistente (createCompetition vs adicionarConcurso)",
+      "Alguns hooks fazem sanitização, outros não",
+      "Padrões diferentes de tratamento de erro",
+      "Alguns hooks usam debouncing, outros não",
+      "Estruturas de retorno diferentes entre hooks similares"
+    ]
+  },
+  
+  "types": {
+    "identificados": [
+      {
+        "nome": "Concurso",
+        "arquivo": "types/concursos.ts",
+        "tipo": "interface",
+        "finalidade": "Definir estrutura principal de um concurso",
+        "campos": [
+          "id?: string",
+          "user_id?: string", 
+          "title: string",
+          "organizer: string",
+          "registration_date?: string | null",
+          "exam_date?: string | null",
+          "edital_link?: string | null",
+          "status: ConcursoStatus",
+          "disciplinas?: Disciplina[]",
+          "created_at?: string",
+          "updated_at?: string"
+        ],
+        "relacionamentos": [
+          "Usa ConcursoStatus enum",
+          "Contém array de Disciplina",
+          "Relaciona com tabela competitions no Supabase"
+        ],
+        "problemas_identificados": [
+          "Campos opcionais inconsistentes (id deveria ser obrigatório após criação)",
+          "Mistura de snake_case e camelCase",
+          "Falta de validação de tipos para datas"
+        ]
+      },
+      {
+        "nome": "ConcursoStatus",
+        "arquivo": "types/concursos.ts",
+        "tipo": "type",
+        "finalidade": "Enum para status de concurso",
+        "campos": [
+          "planejado",
+          "inscrito", 
+          "estudando",
+          "realizado",
+          "aguardando_resultado"
+        ],
+        "relacionamentos": [
+          "Usado por interface Concurso",
+          "Usado em componentes de UI"
+        ],
+        "problemas_identificados": [
+          "Nomenclatura inconsistente (aguardando_resultado com underscore)"
+        ]
+      },
+      {
+        "nome": "Disciplina",
+        "arquivo": "types/concursos.ts",
+        "tipo": "interface",
+        "finalidade": "Definir disciplinas de um concurso",
+        "campos": [
+          "id?: string",
+          "competition_id?: string",
+          "name: string",
+          "progress?: number",
+          "topicos?: Topico[]",
+          "created_at?: string",
+          "updated_at?: string"
+        ],
+        "relacionamentos": [
+          "Pertence a Concurso",
+          "Contém array de Topico",
+          "Relaciona com tabela subjects no Supabase"
+        ],
+        "problemas_identificados": [
+          "Campo progress sem validação de range (0-100)",
+          "Inconsistência de nomenclatura (competition_id vs competitionId)"
+        ]
+      },
+      {
+        "nome": "Topico",
+        "arquivo": "types/concursos.ts",
+        "tipo": "interface",
+        "finalidade": "Definir tópicos de uma disciplina",
+        "campos": [
+          "id?: string",
+          "subject_id?: string",
+          "name: string",
+          "completed?: boolean",
+          "created_at?: string",
+          "updated_at?: string"
+        ],
+        "relacionamentos": [
+          "Pertence a Disciplina",
+          "Relaciona com tabela topics no Supabase"
+        ],
+        "problemas_identificados": [
+          "Estrutura muito simples, poderia ter mais metadados"
+        ]
+      },
+      {
+        "nome": "Questao",
+        "arquivo": "types/concursos.ts",
+        "tipo": "interface",
+        "finalidade": "Definir questões de concurso",
+        "campos": [
+          "id?: string",
+          "competition_id?: string",
+          "subject_id?: string",
+          "topic_id?: string | null",
+          "question_text: string",
+          "options?: QuestionOption[]",
+          "correct_answer?: string",
+          "explanation?: string",
+          "difficulty?: 'facil' | 'medio' | 'dificil'",
+          "question_type?: 'multiple_choice' | 'true_false' | 'essay' | 'short_answer'",
+          "points?: number",
+          "time_limit_seconds?: number",
+          "tags?: string[]",
+          "source?: string",
+          "year?: number",
+          "is_active?: boolean",
+          "usage_count?: number",
+          "is_ai_generated?: boolean",
+          "created_at?: string",
+          "updated_at?: string"
+        ],
+        "relacionamentos": [
+          "Pertence a Concurso",
+          "Pertence a Disciplina",
+          "Pode pertencer a Topico",
+          "Contém array de QuestionOption",
+          "Relaciona com tabela questions no Supabase"
+        ],
+        "problemas_identificados": [
+          "Interface muito extensa com muitos campos opcionais",
+          "Falta de validação para campos numéricos",
+          "Inconsistência entre correct_answer string e options array"
+        ]
+      },
+      {
+        "nome": "QuestionOption",
+        "arquivo": "types/concursos.ts",
+        "tipo": "interface",
+        "finalidade": "Definir opções de resposta de questões",
+        "campos": [
+          "text: string",
+          "isCorrect: boolean"
+        ],
+        "relacionamentos": [
+          "Usado por Questao",
+          "Validado por validateQuestionOptions"
+        ],
+        "problemas_identificados": [
+          "Estrutura muito simples, poderia ter ID para referência"
+        ]
+      },
+      {
+        "nome": "Simulado",
+        "arquivo": "types/concursos.ts",
+        "tipo": "interface",
+        "finalidade": "Definir simulados de concurso",
+        "campos": [
+          "id?: string",
+          "competition_id?: string",
+          "user_id?: string",
+          "title: string",
+          "description?: string",
+          "questions: string[]",
+          "question_count?: number",
+          "time_limit_minutes?: number",
+          "difficulty_filter?: 'facil' | 'medio' | 'dificil'",
+          "subject_filters?: string[]",
+          "topic_filters?: string[]",
+          "status?: 'draft' | 'active' | 'completed' | 'archived'",
+          "is_public?: boolean",
+          "results?: SimulationResults",
+          "is_favorite: boolean",
+          "attempts_count?: number",
+          "best_score?: number",
+          "avg_score?: number",
+          "created_at?: string",
+          "updated_at?: string"
+        ],
+        "relacionamentos": [
+          "Pertence a Concurso",
+          "Contém array de IDs de Questao",
+          "Contém SimulationResults",
+          "Relaciona com tabela simulations no Supabase"
+        ],
+        "problemas_identificados": [
+          "Duplicação com Simulado em types/simulados.ts",
+          "Campo is_favorite obrigatório sem valor padrão",
+          "Inconsistência entre question_count calculado e questions.length"
+        ]
+      },
+      {
+        "nome": "SimuladoData",
+        "arquivo": "types/simulados.ts",
+        "tipo": "interface",
+        "finalidade": "Estrutura para dados de simulado importado",
+        "campos": [
+          "metadata: SimuladoMetadata",
+          "questoes: SimuladoQuestao[]"
+        ],
+        "relacionamentos": [
+          "Contém SimuladoMetadata",
+          "Contém array de SimuladoQuestao",
+          "Usado para importação de arquivos"
+        ],
+        "problemas_identificados": [
+          "Estrutura diferente do Simulado principal",
+          "Falta de mapeamento claro entre estruturas"
+        ]
+      },
+      {
+        "nome": "SimuladoResultado",
+        "arquivo": "types/simulados.ts",
+        "tipo": "interface",
+        "finalidade": "Resultados de execução de simulado",
+        "campos": [
+          "id?: string",
+          "user_id?: string",
+          "simulation_id?: string",
+          "score: number",
+          "total_questions: number",
+          "percentage: number",
+          "time_taken_minutes?: number",
+          "answers: Record<string, string>",
+          "completed_at?: string",
+          "created_at?: string"
+        ],
+        "relacionamentos": [
+          "Relaciona com Simulado",
+          "Usado por hooks de histórico",
+          "Relaciona com tabela simulation_history no Supabase"
+        ],
+        "problemas_identificados": [
+          "Duplicação com SimulationResults em types/concursos.ts",
+          "Campo score obrigatório mas pode ser 0"
+        ]
+      }
+    ],
+    "problemas_gerais": [
+      "Duplicação de tipos entre arquivos (Simulado vs SimuladoData)",
+      "Inconsistência de nomenclatura (snake_case vs camelCase)",
+      "Falta de tipos para validação de entrada vs saída",
+      "Muitos campos opcionais sem valores padrão claros",
+      "Falta de tipos genéricos para reutilização",
+      "Ausência de tipos para estados de loading/error"
+    ],
+    "tipos_duplicados": [
+      "Simulado (concursos.ts) vs Simulado (simulados.ts)",
+      "SimulationResults vs SimuladoResultado",
+      "Estruturas similares para questões em diferentes contextos"
+    ]
+  },
+  
+  "utils": {
+    "identificados": [
+      {
+        "nome": "validateConcurso",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Validar dados de concurso antes de salvar",
+        "parametros": [
+          "concurso: any"
+        ],
+        "retorno": "ValidationResult",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts",
+          "utils/validations.test.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Validação de URL muito restritiva",
+          "Falta de validação para relacionamentos"
+        ]
+      },
+      {
+        "nome": "validateQuestao",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Validar dados de questão antes de salvar",
+        "parametros": [
+          "questao: any"
+        ],
+        "retorno": "ValidationResult",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts",
+          "utils/validations.test.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Validação complexa demais para uma função",
+          "Falta de validação para novos campos"
+        ]
+      },
+      {
+        "nome": "validateQuestionOptions",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Validar opções de questões",
+        "parametros": [
+          "options: any"
+        ],
+        "retorno": "ValidationResult",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts",
+          "validateQuestao function"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Lógica específica misturada com validação genérica"
+        ]
+      },
+      {
+        "nome": "validateSimulationResults",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Validar resultados de simulação",
+        "parametros": [
+          "results: any"
+        ],
+        "retorno": "ValidationResult",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Modifica o objeto de entrada (não é pura)",
+          "Validação muito específica"
+        ]
+      },
+      {
+        "nome": "sanitizeString",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Limpar e normalizar strings",
+        "parametros": [
+          "value: any"
+        ],
+        "retorno": "string",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Muito simples para casos complexos"
+        ]
+      },
+      {
+        "nome": "sanitizeDate",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Normalizar formatos de data",
+        "parametros": [
+          "value: any"
+        ],
+        "retorno": "string | null",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Lógica complexa para uma função utilitária"
+        ]
+      },
+      {
+        "nome": "sanitizeArray",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Limpar arrays removendo valores vazios",
+        "parametros": [
+          "value: any"
+        ],
+        "retorno": "any[]",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Retorna any[] sem tipagem específica"
+        ]
+      },
+      {
+        "nome": "sanitizeNumber",
+        "arquivo": "utils/validations.ts",
+        "finalidade": "Converter e validar números",
+        "parametros": [
+          "value: any"
+        ],
+        "retorno": "number | null",
+        "eh_pura": true,
+        "usado_em": [
+          "hooks/use-concursos.ts"
+        ],
+        "problemas_identificados": [
+          "Aceita any como parâmetro",
+          "Muito simples, poderia ter mais validações"
+        ]
+      }
+    ],
+    "problemas_gerais": [
+      "Todas as funções aceitam 'any' como parâmetro",
+      "Falta de utils específicos para o domínio de concursos",
+      "Funções de validação muito complexas",
+      "Falta de utils para transformação de dados",
+      "Ausência de formatters específicos",
+      "Falta de constantes e enums utilitários"
+    ],
+    "funcoes_duplicadas": [
+      "Lógica de validação repetida em diferentes funções",
+      "Sanitização similar em múltiplas funções"
+    ]
+  },
+  
+  "relacionamentos": {
+    "hooks_types": {
+      "como_se_relacionam": "Hooks importam tipos diretamente e os usam para tipagem de estados e parâmetros. useConcursos usa Concurso, Disciplina, Topico, Questao. useSimulados usa tipos de simulados.ts. Há dependência forte entre hooks e tipos.",
+      "problemas": [
+        "Tipos duplicados causam confusão sobre qual usar",
+        "Hooks dependem de tipos específicos em vez de interfaces genéricas",
+        "Falta de abstração para tipos comuns",
+        "Inconsistência entre tipos usados por diferentes hooks"
+      ]
+    },
+    "hooks_utils": {
+      "como_se_relacionam": "Hooks importam funções de validação e sanitização do utils/validations.ts. useConcursos é o principal consumidor, usando validateConcurso, validateQuestao, sanitizeString, etc.",
+      "problemas": [
+        "Dependência forte de utils específicos",
+        "Falta de abstração para operações comuns",
+        "Utils muito específicos em vez de genéricos",
+        "Alguns hooks não usam validação consistentemente"
+      ]
+    },
+    "utils_types": {
+      "como_se_relacionam": "Utils de validação retornam ValidationResult e trabalham com tipos específicos do domínio. Há acoplamento direto entre validadores e tipos de concursos.",
+      "problemas": [
+        "Validadores aceitam 'any' em vez de tipos específicos",
+        "Falta de tipagem forte na entrada dos validadores",
+        "Validadores muito específicos para tipos únicos"
+      ]
+    },
+    "dependencias_circulares": [
+      "useSimulados depende de useConcursos, que pode causar problemas de re-renderização",
+      "Tipos de concursos.ts e simulados.ts se referenciam mutuamente"
+    ],
+    "acoplamento_excessivo": [
+      "useConcursos faz muitas coisas e é usado por muitos outros hooks",
+      "Validadores muito específicos para cada tipo",
+      "Hooks dependem de implementações específicas do Supabase",
+      "Falta de abstração para operações de banco de dados"
+    ]
+  },
+  
+  "fluxo_dados": {
+    "entrada": "Dados entram via formulários de UI (ConcursoForm), importação de arquivos JSON, ou APIs externas. Passam por hooks que fazem sanitização e validação antes de enviar ao Supabase.",
+    "transformacoes": [
+      "Sanitização de strings, datas e arrays",
+      "Validação usando funções específicas",
+      "Conversão entre formatos de data",
+      "Normalização de estruturas de dados",
+      "Enriquecimento com dados relacionados",
+      "Cache e debouncing de requisições"
+    ],
+    "saida": "Dados saem tipados através dos hooks para componentes React, que os exibem em cards, listas, formulários e dashboards. Também são exportados para arquivos JSON.",
+    "pontos_falha": [
+      "Validação pode falhar silenciosamente",
+      "Sanitização pode corromper dados",
+      "Cache pode ficar desatualizado",
+      "Debouncing pode causar perda de dados",
+      "Transformações entre tipos diferentes podem falhar",
+      "Operações assíncronas sem proper error handling",
+      "Dependências circulares podem causar loops infinitos"
+    ]
+  },
+  
+  "recomendacoes_prioritarias": [
+    {
+      "categoria": "hooks",
+      "prioridade": "alta",
+      "problema": "Hook useConcursos com responsabilidades excessivas",
+      "solucao_sugerida": "Dividir em hooks menores: useConcursosCRUD, useConcursosCache, useConcursosValidation",
+      "impacto": "Dificulta manutenção, testes e reutilização. Pode causar re-renderizações desnecessárias"
+    },
+    {
+      "categoria": "types",
+      "prioridade": "alta", 
+      "problema": "Tipos duplicados entre concursos.ts e simulados.ts",
+      "solucao_sugerida": "Consolidar tipos em arquivo único ou criar hierarquia clara de herança",
+      "impacto": "Confusão sobre qual tipo usar, inconsistências de dados, bugs difíceis de rastrear"
+    },
+    {
+      "categoria": "hooks",
+      "prioridade": "alta",
+      "problema": "Dependência circular entre useSimulados e useConcursos",
+      "solucao_sugerida": "Criar hook intermediário ou usar context para compartilhar estado",
+      "impacto": "Pode causar loops infinitos de re-renderização e problemas de performance"
+    },
+    {
+      "categoria": "utils",
+      "prioridade": "media",
+      "problema": "Funções de validação aceitam 'any' como parâmetro",
+      "solucao_sugerida": "Criar tipos específicos para entrada de validação e usar generics",
+      "impacto": "Perda de type safety, bugs em runtime, dificuldade de manutenção"
+    },
+    {
+      "categoria": "hooks",
+      "prioridade": "media",
+      "problema": "Estados de loading e error inconsistentes entre hooks",
+      "solucao_sugerida": "Criar hook customizado useAsyncState ou usar biblioteca como SWR/React Query",
+      "impacto": "UX inconsistente, código duplicado, dificuldade de debugging"
+    },
+    {
+      "categoria": "relacionamentos",
+      "prioridade": "media",
+      "problema": "Acoplamento forte com implementação específica do Supabase",
+      "solucao_sugerida": "Criar camada de abstração para operações de banco de dados",
+      "impacto": "Dificuldade para trocar de banco, testes complexos, vendor lock-in"
+    },
+    {
+      "categoria": "types",
+      "prioridade": "baixa",
+      "problema": "Inconsistência de nomenclatura (snake_case vs camelCase)",
+      "solucao_sugerida": "Padronizar para camelCase no frontend e criar transformers para API",
+      "impacto": "Confusão de desenvolvedores, bugs sutis, código menos legível"
+    },
+    {
+      "categoria": "utils",
+      "prioridade": "baixa",
+      "problema": "Falta de utils específicos para domínio de concursos",
+      "solucao_sugerida": "Criar formatters, calculators e helpers específicos para concursos",
+      "impacto": "Código duplicado, lógica de negócio espalhada, dificuldade de manutenção"
+    }
+  ],
+  
+  "metricas": {
+    "total_hooks": 6,
+    "total_types": 10,
+    "total_utils": 8,
+    "nivel_complexidade": "alto",
+    "nivel_padronizacao": "baixo",
+    "problemas_criticos": 3,
+    "score_qualidade": 45
+  }
+}

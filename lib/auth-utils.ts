@@ -193,7 +193,9 @@ export async function validateAuthState(forceRefresh = false): Promise<{
 export async function withAuth<T>(
   operation: (user: User) => Promise<T>,
   retryCount = 0,
-): Promise<{ data: T | null; error: string | null }> {
+): Promise<{
+  id: any; data: T | null; error: string | null 
+}> {
   const MAX_RETRIES = 2;
   const { user, error } = await validateAuthState(retryCount > 0);
 

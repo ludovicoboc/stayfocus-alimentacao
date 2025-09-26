@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-provider";
-import { useConcursos } from "@/hooks/use-concursos";
+import { useConcursos } from "@/hooks/concursos";
 import { competitionCache } from "@/lib/cache-manager";
 import { envValidator } from "@/lib/env-validator";
 import { competitionLogger } from "@/lib/error-handler";

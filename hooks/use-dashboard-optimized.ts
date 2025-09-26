@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { useAuthOptimized } from "@/hooks/use-auth-optimized"
 import { globalRequestCache } from "@/lib/request-cache-manager"
 import type { AtividadePainelDia, Prioridade, Medicamento, SessaoFocoDashboard } from "@/types/dashboard"
-import { sanitizeString } from "@/utils/validations"
+import { sanitizeString } from "@/utils/validations-migration"
 import { getCurrentDateString } from "@/lib/utils"
 
 interface DashboardData {

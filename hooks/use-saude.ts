@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import { createDebouncedFunction, DEBOUNCE_CONFIGS } from "@/lib/request-debouncer"
 import { useAuth } from "./use-auth"
+import { useAsyncState } from "@/hooks/shared/use-async-state"
 import type {
   Medicamento,
   RegistroHumor,
@@ -16,7 +17,7 @@ import type {
 } from "@/types/saude"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { validateMedicamento, validateRegistroHumor, validateData, sanitizeString, sanitizeArray, sanitizeDate } from "@/utils/validations"
+import { validateMedicamento, validateRegistroHumor, validateData, sanitizeString, sanitizeArray, sanitizeDate } from "@/utils/validations-migration"
 import { getCurrentDateString } from "@/lib/utils"
 
 export function useSaude(date?: string) {
@@ -24,11 +25,25 @@ export function useSaude(date?: string) {
   const { user } = useAuth()
   const resolvedDate = useMemo(() => date || getCurrentDateString(), [date])
 
-  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([])
-  const [registrosHumor, setRegistrosHumor] = useState<RegistroHumor[]>([])
+  // SUP-5: Estados async padronizados
+  const medicamentosState = useAsyncState<Medicamento[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em medicamentos:", error)
+  });
+  
+  const registrosHumorState = useAsyncState<RegistroHumor[]>({
+    initialData: [],
+    onError: (error) => console.error("Erro em registros humor:", error)
+  });
+  
+  // Compatibilidade com API existente
+  const medicamentos = medicamentosState.data || [];
+  const registrosHumor = registrosHumorState.data || [];
+  const loadingMedicamentos = medicamentosState.loading;
+  const loadingRegistrosHumor = registrosHumorState.loading;
+  
+  // Estados não migrados ainda (mantidos para compatibilidade)
   const [medicamentosTomados, setMedicamentosTomados] = useState<MedicamentoTomado[]>([])
-  const [loadingMedicamentos, setLoadingMedicamentos] = useState(true)
-  const [loadingRegistrosHumor, setLoadingRegistrosHumor] = useState(true)
   const [resumoMedicamentos, setResumoMedicamentos] = useState<ResumoMedicamentos>({
     total: 0,
     tomadosHoje: 0,

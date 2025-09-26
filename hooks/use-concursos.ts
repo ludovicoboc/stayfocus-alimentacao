@@ -7,7 +7,7 @@ import { createDebouncedFunction, DEBOUNCE_CONFIGS } from "@/lib/request-debounc
 import { optimizedAuthCache } from "@/lib/auth-cache";
 import { validateAuthState, withAuth, requireAuth } from "@/lib/auth-utils";
 import type { Concurso, Disciplina, Topico, Questao, Simulado } from "@/types/concursos";
-import { validateConcurso, validateQuestao, validateQuestionOptions, validateSimulationResults, validateData, sanitizeString, sanitizeDate, sanitizeArray, sanitizeNumber } from "@/utils/validations";
+import { validateConcurso, validateQuestao, validateQuestionOptions, validateSimulationResults, validateData, sanitizeString, sanitizeDate, sanitizeArray, sanitizeNumber } from "@/utils/validations-migration";
 import { handleSupabaseCompetitionError } from "@/lib/error-handler";
 
 // Cache otimizado para concursos
